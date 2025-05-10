@@ -25,6 +25,7 @@
   <ItemGroup>
     <Folder Include="Interfaces\Handlers\" />
     <Folder Include="Mappers\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 
 </Project>
