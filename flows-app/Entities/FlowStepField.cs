@@ -1,12 +1,11 @@
-﻿using flows_app.Interfaces;
+﻿using flows_app.Services;
 
 namespace flows_app.Entities
 {
-
     public enum DirectionType
     {
-        Input   =1,
-        Output =2,
+        Input   = 1,
+        Output  = 2,
     }
     public class FlowStepField : IEntity
     {

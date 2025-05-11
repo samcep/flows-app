@@ -1,18 +1,23 @@
-﻿using flows_app.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-
+﻿using Microsoft.EntityFrameworkCore;
 namespace flows_app.Services
 {
-    public class AsyncRepository<TEntity> : IAsyncRepository<TEntity> where TEntity : class
+    public interface IEntity
+    {
+        public string Id { get; set; }
+    }
+    public interface IAsyncRepository<TEntity> where TEntity : class, IEntity
+    {
+        Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken);
+        Task<TEntity> GetByIdAsync(string id, CancellationToken cancellationToken);
+        Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
+        Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
+        Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+    }
+    public class AsyncRepository<TEntity> : IAsyncRepository<TEntity> where TEntity : class, IEntity
     {
         private readonly ApplicationDbContext _dbContext;
-
-        public AsyncRepository(ApplicationDbContext context)
-        {
-            _dbContext = context;
-        }
-
+        public AsyncRepository(ApplicationDbContext context) => _dbContext = context;
+   
         public async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await _dbContext.Set<TEntity>()
@@ -20,87 +25,32 @@ namespace flows_app.Services
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<IReadOnlyList<TEntity>> GetAsync(Expression<Func<TEntity, bool>> condition, CancellationToken cancellationToken = default)
-        {
-            return await _dbContext.Set<TEntity>()
-                .Where(condition)
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
-        }
-
-        public async Task<IReadOnlyCollection<TEntity>> GetAsync(
-            Expression<Func<TEntity, bool>> condition = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            string includeString = null,
-            bool disableTracking = true)
-        {
-            IQueryable<TEntity> query = _dbContext.Set<TEntity>();
-
-            if (disableTracking)
-                query = query.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(includeString))
-                query = query.Include(includeString);
-
-            if (condition != null)
-                query = query.Where(condition);
-
-            if (orderBy != null)
-                return await orderBy(query).ToListAsync();
-            return await query.ToListAsync();
-        }
-
-        public async Task<IReadOnlyCollection<TEntity>> GetAsync(
-            Expression<Func<TEntity, bool>> condition = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            List<Expression<Func<TEntity, object>>> includes = null,
-            bool disableTracking = true)
-        {
-            IQueryable<TEntity> query = _dbContext.Set<TEntity>();
-
-            if (disableTracking)
-                query = query.AsNoTracking();
-
-            if (includes != null)
-            {
-                foreach (var include in includes)
-                    query = query.Include(include);
-            }
-
-            if (condition != null)
-                query = query.Where(condition);
-
-            if (orderBy != null)
-                return await orderBy(query).ToListAsync();
-
-            return await query.ToListAsync();
-        }
-
-        public async Task<TEntity> GetByIdAsync(int id, CancellationToken cancellationToken)
+        public async Task<TEntity> GetByIdAsync(string id, CancellationToken cancellationToken)
         {
             return await _dbContext.Set<TEntity>().FindAsync(new object[] { id }, cancellationToken);
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity)
+        public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
-            await _dbContext.Set<TEntity>().AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.Set<TEntity>().AddAsync(entity, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
             return entity;
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             _dbContext.Set<TEntity>().Update(entity);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
             return entity;
         }
 
-        public async Task<TEntity> DeleteAsync(TEntity entity)
+        public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             _dbContext.Set<TEntity>().Remove(entity);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
             return entity;
         }
     }
+
 
 }

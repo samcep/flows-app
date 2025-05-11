@@ -1,4 +1,4 @@
-﻿using flows_app.Interfaces;
+﻿using flows_app.Services;
 
 namespace flows_app.Entities
 {
@@ -8,5 +8,4 @@ namespace flows_app.Entities
         public string Name { get; set; }
         public ICollection<FlowStep> FlowSteps { get; set; }
     }
-
 }

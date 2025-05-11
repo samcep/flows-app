@@ -1,15 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using flows_app.Dtos;
+using flows_app.Entities;
+using flows_app.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace flows_app.Controllers
 {
     [ApiController]
     [Route("api/fields")]
-    public class FieldController : ControllerBase
+    public class FieldController : BaseController<Field, FieldRequest , FieldResponse>
     {
-        [HttpGet]
-        public ActionResult<string> Index()
+        public FieldController(IAsyncService<Field , FieldRequest , FieldResponse> service) : base(service) 
         {
-            return Ok("Hello from FieldController");
+  
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using flows_app.Interfaces;
-
+﻿using flows_app.Services;
 namespace flows_app.Entities
 {
     public class FlowStep : IEntity
@@ -11,9 +10,6 @@ namespace flows_app.Entities
         public Step Step { get; set; }
         public int Order { get; set; }
         public ICollection<FlowStepField> FlowStepFields { get; set; }
-        public ICollection<FlowStepDependency> Dependencies { get; set; }
         public ICollection<FlowStepDependency> DependedBy { get; set; }
     }
-
-
 }

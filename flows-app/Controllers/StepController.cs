@@ -1,16 +1,18 @@
 ﻿
+using flows_app.Dtos;
+using flows_app.Entities;
+using flows_app.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace flows_app.Controllers
 {
     [ApiController]
     [Route("api/steps")]
-    public class StepController : ControllerBase
+    public class StepController : BaseController<Step, StepRequest , StepResponse>
     {
-        [HttpGet]
-        public ActionResult<string> Index()
+        public StepController(IAsyncService<Step, StepRequest , StepResponse> service) : base(service)
         {
-            return Ok("Hello from StepController");
+
         }
     }
 }
