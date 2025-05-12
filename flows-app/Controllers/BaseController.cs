@@ -7,7 +7,7 @@ namespace flows_app.Controllers
     where TEntity : class, IEntity
     where TRequest : class
     {
-        private readonly IAsyncService<TEntity, TRequest , TResponse> _service;
+        protected readonly IAsyncService<TEntity, TRequest , TResponse> _service;
         public BaseController(IAsyncService<TEntity, TRequest , TResponse> service) => _service = service;
 
         [HttpGet("{id}")]
@@ -62,6 +62,7 @@ namespace flows_app.Controllers
             }
             catch (KeyNotFoundException ex)
             {
+                
                 return NotFound(ex.Message);
             }
         }

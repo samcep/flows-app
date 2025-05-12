@@ -1,4 +1,6 @@
-﻿namespace flows_app.Services
+﻿using System.Linq.Expressions;
+
+namespace flows_app.Services
 {
     public interface IAsyncService<TEntity, TRequest , TResponse> 
         where TEntity : class, IEntity

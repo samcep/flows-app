@@ -1,8 +1,10 @@
 using flows_app;
 using flows_app.Dtos;
 using flows_app.Entities;
+using flows_app.Repositories;
 using flows_app.Services;
 using Microsoft.EntityFrameworkCore;
+
 using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
@@ -22,7 +24,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
 builder.Services.AddScoped<IAsyncService<Field, FieldRequest, FieldResponse>, FieldService>();
 builder.Services.AddScoped<IAsyncService<Step, StepRequest, StepResponse>, StepService>();
-builder.Services.AddScoped<IAsyncService<Flow, FlowRequest, FlowResponse>, FlowService>();
+builder.Services.AddScoped<IFlowRepository, FlowRepository>();
+builder.Services.AddScoped<IFlowService, FlowService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
