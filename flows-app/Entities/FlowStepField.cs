@@ -14,7 +14,7 @@ namespace flows_app.Entities
         public FlowStep FlowStep { get; set; }
         public string FieldId { get; set; }
         public Field Field { get; set; }
-        public DirectionType Direction { get; set; } 
+        public DirectionType? Direction { get; set; } 
     }
 
 }

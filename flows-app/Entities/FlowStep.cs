@@ -9,6 +9,7 @@ namespace flows_app.Entities
         public string StepId { get; set; }
         public Step Step { get; set; }
         public int Order { get; set; }
+        public bool IsCompleted { get; set; }
         public ICollection<FlowStepField> FlowStepFields { get; set; }
         public ICollection<FlowStepDependency> DependedBy { get; set; }
     }

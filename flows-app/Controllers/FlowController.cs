@@ -54,7 +54,7 @@ namespace flows_app.Controllers
             var chain = factory.BuildChain(dependentSteps);
 
             var completedSteps = new HashSet<string>(stepResults.Where(r => r.Success).Select(r => r.FlowStepId));
-            await chain.HandleStepAsync(dependentSteps.First(), completedSteps, stepResults, ct);
+            await chain.HandleStepAsync(completedSteps, stepResults,  ct);
             var summary = new FlowExecutionSummary(
                 FlowId: id,
                 IsCompleted: stepResults.All(r => r.Success),

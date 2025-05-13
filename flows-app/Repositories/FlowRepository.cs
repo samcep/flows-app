@@ -46,7 +46,7 @@ namespace flows_app.Repositories
                     ),
                     FlowStepFields: fs.FlowStepFields?.Select(fsf => new FlowStepFieldResponse(
                         Id: fsf.Id,
-                        Direction: fsf.Direction,
+                        Direction: fsf?.Direction ?? DirectionType.Input,
                         Field: new FieldResponse(
                             Id: fsf.Field?.Id,
                             Name: fsf.Field?.Name
@@ -63,16 +63,22 @@ namespace flows_app.Repositories
 
         public async Task<bool> AreAllRequiredFieldsAvailableAsync(IEnumerable<string> fieldIds)
         {
-            //var existingFieldIds = await _dbContext.Fields
-            //    .Where(f => fieldIds.Contains(f.Id))
-            //    .Select(f => f.Id)
-            //    .ToListAsync();
-            return 2 == 2;
+            var existingFieldIds = await _dbContext.Fields
+                .Where(f => fieldIds.Contains(f.Id))
+                .Select(f => f.Id)
+                .ToListAsync();
+            return existingFieldIds.Count == fieldIds.Count();
         }
 
-        public async Task MarkStepAsCompleted(string stepId)
+        public async Task MarkStepAsCompleted(string flowStepId)
         {
+            var step = await _dbContext.FlowSteps.FirstOrDefaultAsync(s => s.Id == flowStepId);
 
+            if (step is null)
+                throw new InvalidOperationException($"Step with ID '{flowStepId}' not found.");
+
+            step.IsCompleted = true;
+            await _dbContext.SaveChangesAsync();
         }
     }   
 }
