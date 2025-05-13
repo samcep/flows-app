@@ -10,7 +10,7 @@ namespace flows_app.Controllers
         protected readonly IAsyncService<TEntity, TRequest , TResponse> _service;
         public BaseController(IAsyncService<TEntity, TRequest , TResponse> service) => _service = service;
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}" )]
         public virtual async Task<IActionResult> GetByIdAsync(string id, CancellationToken cancellationToken)
         {
             try
@@ -35,7 +35,7 @@ namespace flows_app.Controllers
         public virtual async  Task<IActionResult> CreateAsync([FromBody] TRequest dto, CancellationToken cancellationToken)
         {
             var created = await _service.CreateAsync(dto, cancellationToken);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = created }, created);
+            return Ok(created);
         }
 
         [HttpPut("{id}")]

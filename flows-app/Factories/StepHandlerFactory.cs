@@ -36,7 +36,7 @@ namespace flows_app.Factories
                 var hasValidInputs = await _flowService.AreAllRequiredFieldsAvailableAsync(_step.FlowStepFields.Select(f => f.Field.Id));
                 if (hasValidInputs)
                 {
-                    await _flowService.MarkStepAsCompleted(_step.Step.Id);
+                    await _flowService.MarkStepAsCompleted(_step.Id);
                     completedSteps.Add(_step.Id);
                     stepExecutionResults.Add(new StepExecutionResult(_step.Id, _step.Step.Id, _step.Step.Name, true, null));
                 }

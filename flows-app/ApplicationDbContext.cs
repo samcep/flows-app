@@ -52,6 +52,7 @@ namespace flows_app
                     Id = "FST-0001",
                     FlowId = "FLW-0001",
                     StepId = "STP-0001",
+                    IsCompleted = false,
                     Order = 1
                 },
                 new FlowStep
@@ -59,6 +60,7 @@ namespace flows_app
                     Id = "FST-0002",
                     FlowId = "FLW-0001",
                     StepId = "STP-0002",
+                    IsCompleted = false,
                     Order = 2
                 },
                 new FlowStep
@@ -66,6 +68,7 @@ namespace flows_app
                     Id = "FST-0003",
                     FlowId = "FLW-0001",
                     StepId = "STP-0003",
+                    IsCompleted = false,
                     Order = 3
                 }
             );

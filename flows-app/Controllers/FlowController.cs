@@ -38,7 +38,7 @@ namespace flows_app.Controllers
                         return new StepExecutionResult(step.Id , step.Step.Id, step.Step.Name, false, "Missing required fields");
                     }
 
-                    await _flowService.MarkStepAsCompleted(step.Step.Id);
+                    await _flowService.MarkStepAsCompleted(step.Id);
                     return new StepExecutionResult(step.Id ,step.Step.Id, step.Step.Name, true, null);
                 }
                 catch (Exception ex)
