@@ -4,18 +4,7 @@ using flows_app.Entities;
 using flows_app.Repositories;
 using flows_app.Services;
 using Microsoft.EntityFrameworkCore;
-
-using Serilog;
 var builder = WebApplication.CreateBuilder(args);
-Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
-                .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
-                .MinimumLevel.Information()
-                .WriteTo.Console()
-                .WriteTo.File("logs/myapp.txt", rollingInterval: RollingInterval.Day)
-                .Enrich.FromLogContext()
-                .CreateLogger();
-builder.Host.UseSerilog();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")!);

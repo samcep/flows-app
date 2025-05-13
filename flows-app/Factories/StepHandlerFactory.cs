@@ -9,43 +9,45 @@ namespace flows_app.Factories
     {
         protected StepHandler? _next;
         public void SetNext(StepHandler next) => _next = next;
-        public abstract Task HandleStepAsync(FlowStepResponse step,
-            HashSet<string> completedSteps,
-            List<StepExecutionResult> stepExecutionResults,
-            CancellationToken ct);
+        public abstract Task HandleStepAsync(
+          HashSet<string> completedSteps,
+          List<StepExecutionResult> stepExecutionResults,
+          CancellationToken ct);
     }
 
     public class ConcreteStepHandler : StepHandler
     {
         private readonly IFlowService _flowService;
-        public ConcreteStepHandler(IFlowService flowService)
+        private readonly FlowStepResponse _step;
+        public ConcreteStepHandler(IFlowService flowService, FlowStepResponse step)
         {
             _flowService = flowService;
+            _step = step;
         }
-        public override async Task HandleStepAsync(FlowStepResponse step,
-            HashSet<string> completedSteps, 
-            List<StepExecutionResult> stepExecutionResults, 
-            CancellationToken ct)
+        public override async Task HandleStepAsync(HashSet<string> completedSteps,
+           List<StepExecutionResult> stepExecutionResults,
+           CancellationToken ct)
         {
-            var dependenciesSteps = step.DependedBy.ToList();
+            var dependenciesSteps = _step.DependedBy.ToList();
             var canExecute = dependenciesSteps.All(d => completedSteps.Contains(d.DependsOnFlowStepId));
 
             if (canExecute)
             {
-                var hasValidInputs = await _flowService.AreAllRequiredFieldsAvailableAsync(step.FlowStepFields.Select(f => f.Field.Id));
+                var hasValidInputs = await _flowService.AreAllRequiredFieldsAvailableAsync(_step.FlowStepFields.Select(f => f.Field.Id));
                 if (hasValidInputs)
                 {
-                    await _flowService.MarkStepAsCompleted(step.Step.Id);
-                    completedSteps.Add(step.Id);
-                    stepExecutionResults.Add(new StepExecutionResult(step.Id, step.Step.Id, step.Step.Name, true, null));
+                    await _flowService.MarkStepAsCompleted(_step.Step.Id);
+                    completedSteps.Add(_step.Id);
+                    stepExecutionResults.Add(new StepExecutionResult(_step.Id, _step.Step.Id, _step.Step.Name, true, null));
                 }
                 else
                 {
+                    stepExecutionResults.Add(new StepExecutionResult(_step.Id, _step.Step.Id, _step.Step.Name, false, "All steps must be completed before executing this spte"));
                 }
             }
 
-            if (_next is not null)
-                await _next.HandleStepAsync(step, completedSteps , stepExecutionResults, ct);
+            if (_next != null)
+                await _next.HandleStepAsync(completedSteps, stepExecutionResults, ct);
         }
     }
     public class StepHandlerFactory
@@ -58,25 +60,23 @@ namespace flows_app.Factories
         }
         public StepHandler BuildChain(IEnumerable<FlowStepResponse> dependentSteps)
         {
-            StepHandler? first = null;
-            StepHandler? current = null;
-
+            var handlerMap = dependentSteps.ToDictionary(
+                step => step.Id,
+                step => new ConcreteStepHandler(_flowService, step)
+            );
             foreach (var step in dependentSteps)
             {
-                var handler = new ConcreteStepHandler(_flowService);
-                if (first is null)
-                {
-                    first = handler;
-                }
-                else
-                {
-                    current?.SetNext(handler);
-                }
+                var currentHandler = handlerMap[step.Id];
 
-                current = handler;
+                foreach (var dependency in step.DependedBy)
+                {
+                    if (handlerMap.TryGetValue(dependency.DependsOnFlowStepId, out var previousHandler))
+                    {
+                        previousHandler.SetNext(currentHandler);
+                    }
+                }
             }
-
-            return first!;
+            return handlerMap[dependentSteps.First().Id];
         }
 
     }
